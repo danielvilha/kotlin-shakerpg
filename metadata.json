@@ -1,0 +1,6 @@
+{
+  "name": "ShakeRPG",
+  "description": "Tactile RPG polyhedral dice roller featuring accelerometer shake-to-roll, dice pool builder, custom modifiers, and D20 critical callouts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
