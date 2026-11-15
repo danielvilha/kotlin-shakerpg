@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ripple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,8 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 import com.danielvilha.shakerpg.model.RollMode
 import com.danielvilha.shakerpg.model.RpgDieType
 import com.danielvilha.shakerpg.ui.theme.BorderSubtle
@@ -310,5 +311,24 @@ private fun DieSelectorItem(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DiceSelectorBarPreview() {
+    ShakeRPGTheme {
+        DiceSelectorBar(
+            poolCounts = mapOf(RpgDieType.D20 to 1, RpgDieType.D6 to 2),
+            modifierValue = 3,
+            rollMode = RollMode.NORMAL,
+            onAddDie = {},
+            onRemoveDie = {},
+            onClearPool = {},
+            onIncrementMod = {},
+            onDecrementMod = {},
+            onOpenPresets = {},
+            onSelectRollMode = {}
+        )
     }
 }

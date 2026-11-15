@@ -31,10 +31,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.danielvilha.shakerpg.ui.theme.CritFailRed
 import com.danielvilha.shakerpg.ui.theme.CritFailRedDark
 import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
 import com.danielvilha.shakerpg.ui.theme.GoldDark
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 
 @Composable
 fun CriticalBanner(
@@ -128,3 +130,25 @@ private data class Tuple5<A, B, C, D, E>(
     val fourth: D,
     val fifth: E
 )
+
+@Preview(showBackground = true)
+@Composable
+fun CriticalBannerSuccessPreview() {
+    ShakeRPGTheme {
+        CriticalBanner(
+            isCritSuccess = true,
+            isCritFail = false
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CriticalBannerFailPreview() {
+    ShakeRPGTheme {
+        CriticalBanner(
+            isCritSuccess = false,
+            isCritFail = true
+        )
+    }
+}

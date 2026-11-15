@@ -15,18 +15,11 @@ data class DiceStats(
 )
 
 data class DiceUiState(
-    val poolCounts: Map<RpgDieType, Int> = mapOf(RpgDieType.D20 to 1),
+    val poolCounts: Map<RpgDieType, Int> = mapOf(),
     val modifier: Int = 0,
     val rollMode: RollMode = RollMode.NORMAL,
     val isRolling: Boolean = false,
-    val diceInstances: List<DieInstance> = listOf(
-        DieInstance(
-            id = "initial-d20",
-            dieType = RpgDieType.D20,
-            currentValue = 20,
-            isCritSuccess = true
-        )
-    ),
+    val diceInstances: List<DieInstance> = listOf(),
     val lastRollRecord: RollRecord? = null,
     val rollHistory: List<RollRecord> = emptyList(),
     val shakeSensitivity: ShakeSensitivity = ShakeSensitivity.MEDIUM,

@@ -35,8 +35,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import com.danielvilha.shakerpg.model.DieRollResult
+import com.danielvilha.shakerpg.model.RpgDieType
 import com.danielvilha.shakerpg.model.RollMode
 import com.danielvilha.shakerpg.model.RollRecord
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 import com.danielvilha.shakerpg.ui.theme.CritFailRed
 import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
 import com.danielvilha.shakerpg.ui.theme.GoldLight
@@ -264,5 +268,62 @@ fun RollBreakdownCard(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun RollBreakdownCardReadyPreview() {
+    ShakeRPGTheme {
+        RollBreakdownCard(
+            lastRecord = null,
+            formula = "1d20 + 3",
+            modifierValue = 3,
+            isRolling = false,
+            rollMode = RollMode.NORMAL,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun RollBreakdownCardRollingPreview() {
+    ShakeRPGTheme {
+        RollBreakdownCard(
+            lastRecord = null,
+            formula = "1d20 + 3",
+            modifierValue = 3,
+            isRolling = true,
+            rollMode = RollMode.NORMAL,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun RollBreakdownCardResultPreview() {
+    ShakeRPGTheme {
+        RollBreakdownCard(
+            lastRecord = RollRecord(
+                id = "1",
+                timestamp = System.currentTimeMillis(),
+                formula = "1d20 + 5",
+                diceResults = listOf(
+                    DieRollResult(dieType = RpgDieType.D20, value = 18, isCritSuccess = true)
+                ),
+                modifier = 5,
+                total = 23,
+                isCritSuccess = true,
+                isCritFail = false,
+                rollMode = RollMode.NORMAL
+            ),
+            formula = "1d20 + 5",
+            modifierValue = 5,
+            isRolling = false,
+            rollMode = RollMode.NORMAL,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

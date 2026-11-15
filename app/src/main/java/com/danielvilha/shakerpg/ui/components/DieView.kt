@@ -36,8 +36,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.danielvilha.shakerpg.model.DieInstance
+import com.danielvilha.shakerpg.model.RpgDieType
 import com.danielvilha.shakerpg.ui.theme.CritFailRed
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
 import com.danielvilha.shakerpg.ui.theme.TextPrimary
 
@@ -187,5 +190,20 @@ fun DieView(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DieViewPreview() {
+    ShakeRPGTheme {
+        DieView(
+            die = DieInstance(
+                id = "1",
+                dieType = RpgDieType.D20,
+                currentValue = 20,
+                isCritSuccess = true
+            )
+        )
     }
 }

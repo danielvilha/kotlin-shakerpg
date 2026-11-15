@@ -46,7 +46,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import com.danielvilha.shakerpg.model.DieRollResult
+import com.danielvilha.shakerpg.model.RollMode
 import com.danielvilha.shakerpg.model.RollRecord
+import com.danielvilha.shakerpg.model.RpgDieType
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 import com.danielvilha.shakerpg.ui.theme.BorderSubtle
 import com.danielvilha.shakerpg.ui.theme.CritFailRed
 import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
@@ -73,7 +78,6 @@ fun RollHistorySheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showClearConfirmDialog by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -82,137 +86,158 @@ fun RollHistorySheet(
         dragHandle = null,
         modifier = Modifier.testTag("roll_history_modal_sheet")
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .navigationBarsPadding()
-        ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.History,
-                        contentDescription = null,
-                        tint = GoldPrimary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            text = "Roll Chronicle",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Persisted in RoomDatabase",
-                            color = GoldPrimary.copy(alpha = 0.8f),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
+        RollHistorySheetContent(
+            history = history,
+            stats = stats,
+            onReRoll = onReRoll,
+            onDeleteRoll = onDeleteRoll,
+            onClearHistory = onClearHistory,
+            onDismiss = onDismiss
+        )
+    }
+}
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (history.isNotEmpty()) {
-                        IconButton(
-                            onClick = { showClearConfirmDialog = true },
-                            modifier = Modifier
-                                .size(40.dp)
-                                .testTag("clear_all_rolls_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Clear all rolls in Room database",
-                                tint = CritFailRed
-                            )
-                        }
-                    }
+@Composable
+private fun RollHistorySheetContent(
+    history: List<RollRecord>,
+    stats: DiceStats,
+    onReRoll: (RollRecord) -> Unit,
+    onDeleteRoll: (String) -> Unit,
+    onClearHistory: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    var showClearConfirmDialog by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .navigationBarsPadding()
+    ) {
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = null,
+                    tint = GoldPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = "Roll Chronicle",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Persisted in RoomDatabase",
+                        color = GoldPrimary.copy(alpha = 0.8f),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (history.isNotEmpty()) {
                     IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.size(40.dp)
+                        onClick = { showClearConfirmDialog = true },
+                        modifier = Modifier
+                            .size(40.dp)
+                            .testTag("clear_all_rolls_button")
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = TextSecondary
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Clear all rolls in Room database",
+                            tint = CritFailRed
                         )
                     }
                 }
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = TextSecondary
+                    )
+                }
             }
+        }
 
-            Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-            // Stats Dashboard Bar
-            Row(
+        // Stats Dashboard Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceCard)
+                .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                .padding(vertical = 10.dp, horizontal = 12.dp),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            StatColumn(label = "SAVED", value = stats.totalRolls.toString(), color = TextPrimary)
+            StatColumn(label = "NAT 20s", value = stats.nat20Count.toString(), color = CritSuccessGold)
+            StatColumn(label = "NAT 1s", value = stats.nat1Count.toString(), color = CritFailRed)
+            StatColumn(label = "MAX", value = stats.highestTotal.toString(), color = GoldPrimary)
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        if (history.isEmpty()) {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(SurfaceCard)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
-                    .padding(vertical = 10.dp, horizontal = 12.dp),
-                horizontalArrangement = Arrangement.SpaceAround
+                    .padding(vertical = 40.dp),
+                contentAlignment = Alignment.Center
             ) {
-                StatColumn(label = "SAVED", value = stats.totalRolls.toString(), color = TextPrimary)
-                StatColumn(label = "NAT 20s", value = stats.nat20Count.toString(), color = CritSuccessGold)
-                StatColumn(label = "NAT 1s", value = stats.nat1Count.toString(), color = CritFailRed)
-                StatColumn(label = "MAX", value = stats.highestTotal.toString(), color = GoldPrimary)
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            if (history.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 40.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Room database is empty",
-                            color = TextPrimary,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Shake device or tap to roll dice and record outcomes.",
-                            color = TextSecondary,
-                            fontSize = 13.sp
-                        )
-                    }
-                }
-            } else {
-                val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(history, key = { it.id }) { record ->
-                        HistoryRowItem(
-                            record = record,
-                            formattedTime = timeFormat.format(Date(record.timestamp)),
-                            onReRoll = {
-                                onReRoll(record)
-                                onDismiss()
-                            },
-                            onDelete = {
-                                onDeleteRoll(record.id)
-                            }
-                        )
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Room database is empty",
+                        color = TextPrimary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Shake device or tap to roll dice and record outcomes.",
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
                 }
             }
+        } else {
+            val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(history, key = { it.id }) { record ->
+                    HistoryRowItem(
+                        record = record,
+                        formattedTime = timeFormat.format(Date(record.timestamp)),
+                        onReRoll = {
+                            onReRoll(record)
+                            onDismiss()
+                        },
+                        onDelete = {
+                            onDeleteRoll(record.id)
+                        }
+                    )
+                }
+            }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 
     // Confirmation dialog to clear all saved rolls from Room database
@@ -401,6 +426,90 @@ private fun HistoryRowItem(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun RollHistorySheetEmptyPreview() {
+    ShakeRPGTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(ObsidianBackground)
+        ) {
+            RollHistorySheetContent(
+                history = emptyList(),
+                stats = DiceStats(),
+                onReRoll = {},
+                onDeleteRoll = {},
+                onClearHistory = {},
+                onDismiss = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun RollHistorySheetPopulatedPreview() {
+    ShakeRPGTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(ObsidianBackground)
+        ) {
+            RollHistorySheetContent(
+                history = listOf(
+                    RollRecord(
+                        id = "1",
+                        timestamp = System.currentTimeMillis() - 120000,
+                        formula = "1d20 + 5",
+                        diceResults = listOf(DieRollResult(RpgDieType.D20, 20, isCritSuccess = true)),
+                        modifier = 5,
+                        total = 25,
+                        isCritSuccess = true,
+                        isCritFail = false,
+                        rollMode = RollMode.NORMAL
+                    ),
+                    RollRecord(
+                        id = "2",
+                        timestamp = System.currentTimeMillis() - 60000,
+                        formula = "2d6 + 3",
+                        diceResults = listOf(
+                            DieRollResult(RpgDieType.D6, 4),
+                            DieRollResult(RpgDieType.D6, 6)
+                        ),
+                        modifier = 3,
+                        total = 13,
+                        isCritSuccess = false,
+                        isCritFail = false,
+                        rollMode = RollMode.NORMAL
+                    ),
+                    RollRecord(
+                        id = "3",
+                        timestamp = System.currentTimeMillis(),
+                        formula = "1d20 - 1",
+                        diceResults = listOf(DieRollResult(RpgDieType.D20, 1, isCritFail = true)),
+                        modifier = -1,
+                        total = 0,
+                        isCritSuccess = false,
+                        isCritFail = true,
+                        rollMode = RollMode.NORMAL
+                    )
+                ),
+                stats = DiceStats(
+                    totalRolls = 3,
+                    nat20Count = 1,
+                    nat1Count = 1,
+                    highestTotal = 25
+                ),
+                onReRoll = {},
+                onDeleteRoll = {},
+                onClearHistory = {},
+                onDismiss = {}
+            )
         }
     }
 }

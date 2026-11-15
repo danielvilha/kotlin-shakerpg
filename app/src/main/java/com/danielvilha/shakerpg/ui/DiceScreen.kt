@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,24 +59,73 @@ import com.danielvilha.shakerpg.ui.components.PresetsSheet
 import com.danielvilha.shakerpg.ui.components.RollBreakdownCard
 import com.danielvilha.shakerpg.ui.components.RollHistorySheet
 import com.danielvilha.shakerpg.ui.components.SettingsSheet
-import com.danielvilha.shakerpg.ui.theme.CritFailRed
-import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
 import com.danielvilha.shakerpg.ui.theme.GoldDark
 import com.danielvilha.shakerpg.ui.theme.GoldPrimary
 import com.danielvilha.shakerpg.ui.theme.ObsidianBackground
-import com.danielvilha.shakerpg.ui.theme.SurfaceCard
 import com.danielvilha.shakerpg.ui.theme.SurfaceCardElevated
 import com.danielvilha.shakerpg.ui.theme.TextPrimary
 import com.danielvilha.shakerpg.ui.theme.TextSecondary
 import com.danielvilha.shakerpg.viewmodel.DiceUiState
 import com.danielvilha.shakerpg.viewmodel.DiceViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import com.danielvilha.shakerpg.model.RollMode
+import com.danielvilha.shakerpg.model.RollPreset
+import com.danielvilha.shakerpg.model.RollRecord
+import com.danielvilha.shakerpg.model.RpgDieType
+import com.danielvilha.shakerpg.sensor.ShakeSensitivity
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiceScreen(
     viewModel: DiceViewModel,
     uiState: DiceUiState,
     shakeIntensity: Float,
+    modifier: Modifier = Modifier
+) {
+    DiceScreen(
+        uiState = uiState,
+        shakeIntensity = shakeIntensity,
+        onRollDice = { viewModel.rollDice() },
+        onAddDie = { viewModel.addDie(it) },
+        onRemoveDie = { viewModel.removeDie(it) },
+        onClearPool = { viewModel.clearPool() },
+        onIncrementMod = { viewModel.incrementModifier() },
+        onDecrementMod = { viewModel.decrementModifier() },
+        onApplyPreset = { viewModel.applyPreset(it) },
+        onSetRollMode = { viewModel.setRollMode(it) },
+        onReRollRecord = { viewModel.reRollRecord(it) },
+        onDeleteRoll = { viewModel.deleteRoll(it) },
+        onClearHistory = { viewModel.clearHistory() },
+        onToggleShake = { viewModel.toggleShakeEnabled(it) },
+        onChangeSensitivity = { viewModel.updateShakeSensitivity(it) },
+        onToggleHaptics = { viewModel.toggleHapticsEnabled(it) },
+        onToggleSound = { viewModel.toggleSoundEnabled(it) },
+        availablePresets = viewModel.availablePresets,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DiceScreen(
+    uiState: DiceUiState,
+    shakeIntensity: Float,
+    onRollDice: () -> Unit,
+    onAddDie: (RpgDieType) -> Unit,
+    onRemoveDie: (RpgDieType) -> Unit,
+    onClearPool: () -> Unit,
+    onIncrementMod: () -> Unit,
+    onDecrementMod: () -> Unit,
+    onApplyPreset: (RollPreset) -> Unit,
+    onSetRollMode: (RollMode) -> Unit,
+    onReRollRecord: (RollRecord) -> Unit,
+    onDeleteRoll: (String) -> Unit,
+    onClearHistory: () -> Unit,
+    onToggleShake: (Boolean) -> Unit,
+    onChangeSensitivity: (ShakeSensitivity) -> Unit,
+    onToggleHaptics: (Boolean) -> Unit,
+    onToggleSound: (Boolean) -> Unit,
+    availablePresets: List<RollPreset>,
     modifier: Modifier = Modifier
 ) {
     var showHistorySheet by remember { mutableStateOf(false) }
@@ -215,7 +263,7 @@ fun DiceScreen(
                         isRolling = uiState.isRolling,
                         shakeIntensity = shakeIntensity,
                         isShakeEnabled = uiState.isShakeEnabled,
-                        onArenaTap = { viewModel.rollDice() }
+                        onArenaTap = onRollDice
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -244,7 +292,7 @@ fun DiceScreen(
                     )
 
                     Button(
-                        onClick = { viewModel.rollDice() },
+                        onClick = onRollDice,
                         enabled = !uiState.isRolling,
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -286,13 +334,13 @@ fun DiceScreen(
                     poolCounts = uiState.poolCounts,
                     modifierValue = uiState.modifier,
                     rollMode = uiState.rollMode,
-                    onAddDie = { viewModel.addDie(it) },
-                    onRemoveDie = { viewModel.removeDie(it) },
-                    onClearPool = { viewModel.clearPool() },
-                    onIncrementMod = { viewModel.incrementModifier() },
-                    onDecrementMod = { viewModel.decrementModifier() },
+                    onAddDie = onAddDie,
+                    onRemoveDie = onRemoveDie,
+                    onClearPool = onClearPool,
+                    onIncrementMod = onIncrementMod,
+                    onDecrementMod = onDecrementMod,
                     onOpenPresets = { showPresetsSheet = true },
-                    onSelectRollMode = { viewModel.setRollMode(it) },
+                    onSelectRollMode = onSetRollMode,
                     modifier = Modifier.navigationBarsPadding()
                 )
             }
@@ -304,17 +352,17 @@ fun DiceScreen(
         RollHistorySheet(
             history = uiState.rollHistory,
             stats = uiState.stats,
-            onReRoll = { viewModel.reRollRecord(it) },
-            onDeleteRoll = { viewModel.deleteRoll(it) },
-            onClearHistory = { viewModel.clearHistory() },
+            onReRoll = onReRollRecord,
+            onDeleteRoll = onDeleteRoll,
+            onClearHistory = onClearHistory,
             onDismiss = { showHistorySheet = false }
         )
     }
 
     if (showPresetsSheet) {
         PresetsSheet(
-            presets = viewModel.availablePresets,
-            onSelectPreset = { viewModel.applyPreset(it) },
+            presets = availablePresets,
+            onSelectPreset = onApplyPreset,
             onDismiss = { showPresetsSheet = false }
         )
     }
@@ -326,12 +374,44 @@ fun DiceScreen(
             isHapticsEnabled = uiState.isHapticsEnabled,
             isSoundEnabled = uiState.isSoundEnabled,
             rollMode = uiState.rollMode,
-            onToggleShake = { viewModel.toggleShakeEnabled(it) },
-            onChangeSensitivity = { viewModel.updateShakeSensitivity(it) },
-            onToggleHaptics = { viewModel.toggleHapticsEnabled(it) },
-            onToggleSound = { viewModel.toggleSoundEnabled(it) },
-            onSelectRollMode = { viewModel.setRollMode(it) },
+            onToggleShake = onToggleShake,
+            onChangeSensitivity = onChangeSensitivity,
+            onToggleHaptics = onToggleHaptics,
+            onToggleSound = onToggleSound,
+            onSelectRollMode = onSetRollMode,
             onDismiss = { showSettingsSheet = false }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DiceScreenPreview() {
+    ShakeRPGTheme {
+        DiceScreen(
+            uiState = DiceUiState(
+                poolCounts = mapOf(RpgDieType.D20 to 1),
+                modifier = 0,
+                rollMode = RollMode.NORMAL,
+                isRolling = false
+            ),
+            shakeIntensity = 0f,
+            onRollDice = {},
+            onAddDie = {},
+            onRemoveDie = {},
+            onClearPool = {},
+            onIncrementMod = {},
+            onDecrementMod = {},
+            onApplyPreset = {},
+            onSetRollMode = {},
+            onReRollRecord = {},
+            onDeleteRoll = {},
+            onClearHistory = {},
+            onToggleShake = {},
+            onChangeSensitivity = {},
+            onToggleHaptics = {},
+            onToggleSound = {},
+            availablePresets = emptyList()
         )
     }
 }

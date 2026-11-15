@@ -45,9 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.danielvilha.shakerpg.model.DieInstance
-import com.danielvilha.shakerpg.ui.theme.CritFailRed
-import com.danielvilha.shakerpg.ui.theme.CritSuccessGold
+import com.danielvilha.shakerpg.model.RpgDieType
+import com.danielvilha.shakerpg.ui.theme.ShakeRPGTheme
 import com.danielvilha.shakerpg.ui.theme.GoldPrimary
 import com.danielvilha.shakerpg.ui.theme.TextSecondary
 import com.danielvilha.shakerpg.ui.theme.TextTertiary
@@ -218,5 +219,31 @@ fun DiceArenaView(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DiceArenaViewPreview() {
+    ShakeRPGTheme {
+        DiceArenaView(
+            dice = listOf(
+                DieInstance(
+                    id = "1",
+                    dieType = RpgDieType.D20,
+                    currentValue = 20,
+                    isCritSuccess = true
+                ),
+                DieInstance(
+                    id = "2",
+                    dieType = RpgDieType.D6,
+                    currentValue = 6
+                )
+            ),
+            isRolling = false,
+            shakeIntensity = 0f,
+            isShakeEnabled = true,
+            onArenaTap = {}
+        )
     }
 }
