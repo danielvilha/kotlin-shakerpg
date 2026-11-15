@@ -74,7 +74,7 @@ fun DiceSelectorBar(
             .padding(14.dp)
             .testTag("dice_selector_bar")
     ) {
-        // Top row: Modifier Stepper + Presets + Clear
+        // Top row: Modifier Stepper + Roll Mode + Presets + Clear
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -126,8 +126,39 @@ fun DiceSelectorBar(
                 }
             }
 
-            // Presets Button & Clear Button
+            // Roll Mode Chip + Presets Button & Clear Button
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val nextRollMode = when (rollMode) {
+                    RollMode.NORMAL -> RollMode.ADVANTAGE
+                    RollMode.ADVANTAGE -> RollMode.DISADVANTAGE
+                    RollMode.DISADVANTAGE -> RollMode.DROP_LOWEST
+                    RollMode.DROP_LOWEST -> RollMode.NORMAL
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (rollMode != RollMode.NORMAL) GoldPrimary.copy(alpha = 0.2f) else SurfaceCardElevated)
+                        .border(
+                            1.dp,
+                            if (rollMode != RollMode.NORMAL) GoldPrimary else BorderSubtle,
+                            RoundedCornerShape(12.dp)
+                        )
+                        .clickable(onClick = { onSelectRollMode(nextRollMode) })
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .testTag("roll_mode_chip"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = rollMode.title,
+                        color = if (rollMode != RollMode.NORMAL) GoldPrimary else TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))

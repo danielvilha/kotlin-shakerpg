@@ -1,6 +1,5 @@
 package com.danielvilha.shakerpg.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
@@ -30,7 +29,6 @@ private val RpgDarkColorScheme = darkColorScheme(
 
 @Composable
 fun ShakeRPGTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     // We intentionally use the rich RPG dark palette for maximum tabletop immersion

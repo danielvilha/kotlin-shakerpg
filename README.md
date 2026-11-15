@@ -12,6 +12,14 @@ Developed as an applied engineering study exploring rapid development and hardwa
 
 ---
 
+## Screen recording
+
+<p align="center">
+  <img src="images/ShakeRPG_record.gif" alt="Shake RPG demo" width="324">
+</p>
+
+---
+
 ## Key Features
 
 - **Full RPG Polyhedral Set**: Support for standard polyhedral dice: `d4` (Tetrahedron), `d6` (Cube), `d8` (Octahedron), `d10` (Kite), `d12` (Dodecahedron), `d20` (Icosahedron), and `d100` (Percentile).

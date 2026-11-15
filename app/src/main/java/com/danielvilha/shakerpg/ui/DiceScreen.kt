@@ -293,7 +293,7 @@ fun DiceScreen(
 
                     Button(
                         onClick = onRollDice,
-                        enabled = !uiState.isRolling,
+                        enabled = !uiState.isRolling && uiState.totalDiceCount > 0,
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = GoldPrimary,
@@ -304,7 +304,7 @@ fun DiceScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp)
-                            .scale(if (!uiState.isRolling) pulseScale else 1f)
+                            .scale(if (!uiState.isRolling && uiState.totalDiceCount > 0) pulseScale else 1f)
                             .testTag("roll_dice_button")
                     ) {
                         Row(
@@ -318,7 +318,11 @@ fun DiceScreen(
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                text = if (uiState.isRolling) "TUMBLING..." else "ROLL ${uiState.formulaString.uppercase()}",
+                                text = when {
+                                    uiState.isRolling -> "TUMBLING..."
+                                    uiState.totalDiceCount == 0 -> "SELECT DICE TO ROLL"
+                                    else -> "ROLL ${uiState.formulaString.uppercase()}"
+                                },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 0.5.sp

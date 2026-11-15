@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 sealed interface DiceRollEvent {
     data object TumbleTick : DiceRollEvent
@@ -165,9 +166,7 @@ class DiceViewModel(
 
     fun rollDice() {
         if (_uiState.value.isRolling) return
-        if (_uiState.value.totalDiceCount == 0) {
-            addDie(RpgDieType.D20)
-        }
+        if (_uiState.value.totalDiceCount == 0) return
 
         rollJob?.cancel()
         rollJob = viewModelScope.launch {
@@ -181,7 +180,7 @@ class DiceViewModel(
 
             // Tumble animation loop (~650ms, 8 ticks)
             val iterations = 8
-            for (step in 1..iterations) {
+            repeat(iterations) {
                 _events.tryEmit(DiceRollEvent.TumbleTick)
                 val tumblingInstances = diceTypes.mapIndexed { index, dieType ->
                     DieInstance(
@@ -193,7 +192,7 @@ class DiceViewModel(
                     )
                 }
                 _uiState.update { it.copy(diceInstances = tumblingInstances) }
-                delay(75L)
+                delay(75L.milliseconds)
             }
 
             // Final settled roll calculation

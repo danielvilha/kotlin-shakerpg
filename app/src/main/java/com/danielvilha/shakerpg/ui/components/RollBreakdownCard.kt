@@ -93,19 +93,39 @@ fun RollBreakdownCard(
                     )
                 }
 
-                if (rollMode != RollMode.NORMAL) {
-                    Box(
-                        modifier = Modifier
-                            .background(GoldPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
-                            .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = rollMode.title.uppercase(),
-                            color = GoldPrimary,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (modifierValue != 0 && lastRecord == null) {
+                        val modSign = if (modifierValue >= 0) "+$modifierValue" else "$modifierValue"
+                        Box(
+                            modifier = Modifier
+                                .background(GoldPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                                .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "MOD $modSign",
+                                color = GoldPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+                    }
+
+                    if (rollMode != RollMode.NORMAL) {
+                        Box(
+                            modifier = Modifier
+                                .background(GoldPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                                .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = rollMode.title.uppercase(),
+                                color = GoldPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -259,8 +279,14 @@ fun RollBreakdownCard(
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val promptText = if (modifierValue != 0) {
+                            val sign = if (modifierValue >= 0) "+$modifierValue" else "$modifierValue"
+                            "Ready to roll (MOD $sign). Shake device or tap the button below."
+                        } else {
+                            "Ready to roll. Shake device or tap the button below."
+                        }
                         Text(
-                            text = "Ready to roll. Shake device or tap the button below.",
+                            text = promptText,
                             color = TextSecondary,
                             fontSize = 13.sp
                         )
